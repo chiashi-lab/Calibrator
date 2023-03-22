@@ -108,6 +108,8 @@ class Calibrator:
             x_partial = self.xdata[partial]
             y_partial = self.ydata[partial]
 
+            print(list(partial))
+
             # Begin with finding the maximum position
             found_peaks, properties = find_peaks(y_partial, prominence=50)
             if len(found_peaks) != 1:
@@ -122,6 +124,8 @@ class Calibrator:
                 raise ValueError('Invalid num_params.')
 
             popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
+
+            print(popt)
 
             fitted_x.append(popt[0])
             found_x_true.append(x_ref_true)
