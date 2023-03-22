@@ -8,12 +8,12 @@ from sklearn.preprocessing import PolynomialFeatures
 
 def Lorentzian(x: np.ndarray, center: float, intensity: float, w: float, bg: float = 0) -> np.ndarray:
     y = w ** 2 / (4 * (x - center) ** 2 + w ** 2)
-    return intensity * y
+    return intensity * y + bg
 
 
 def Gaussian(x: np.ndarray, center: float, intensity: float, sigma: float, bg: float = 0) -> np.ndarray:
     y = np.exp(-1 / 2 * (x - center) ** 2 / sigma ** 2)
-    return intensity * y
+    return intensity * y + bg
 
 
 def Voigt(x: np.ndarray, center: float, intensity: float, lw: float, gw: float, bg: float = 0) -> np.ndarray:
@@ -25,7 +25,7 @@ def Voigt(x: np.ndarray, center: float, intensity: float, lw: float, gw: float, 
     w = wofz(z)
     model_y = w.real / (gw * np.sqrt(2.0*np.pi))
     intensity /= model_y.max()
-    return intensity * model_y
+    return intensity * model_y + bg
 
 
 
@@ -114,7 +114,6 @@ class Calibrator:
                 print('Some peaks were not detected.')
                 continue
 
-            # Fit with Voigt based on the found peak
             if self.num_params == 4:
                 p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 1, y_partial.min()]
             elif self.num_params == 6:
