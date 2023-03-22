@@ -57,6 +57,7 @@ class Calibrator:
             'Gaussian': Gaussian,
             'Voigt': Voigt
         }
+        self.function = Lorentzian
 
         self.pf = PolynomialFeatures()
         self.lr = LinearRegression()
@@ -88,7 +89,12 @@ class Calibrator:
             raise ValueError('Invalid dimension. It must be greater than zero.')
         self.dimension = dimension
 
-    def find_peaks(self, search_range: float = 15) -> bool:
+    def set_function(self, function: str):
+        if function not in self.functions.keys():
+            raise ValueError(f'Invalid function. It must be {", or ".join(self.functions.keys())}')
+        self.function = self.functions[function]
+
+    def _find_peaks(self, search_range: float = 15) -> bool:
         x_true = np.array(self.database[self.measurement][self.material])
         x_true = x_true[(x_true > self.xdata.min()) & (x_true < self.xdata.max())]  # crop
         search_ranges = [[x-search_range, x+search_range] for x in x_true]
@@ -110,7 +116,7 @@ class Calibrator:
             # Fit with Voigt based on the found peak
             p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 3, 3, y_partial.min()]
 
-            popt, pcov = curve_fit(Voigt, x_partial, y_partial, p0=p0)
+            popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
 
             fitted_x.append(popt[0])
             found_x_true.append(x_ref_true)
@@ -123,7 +129,7 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
-    def train(self, dimension: int) -> None:
+    def _train(self, dimension: int) -> None:
         self.pf.set_params(degree=dimension)
         fitted_x_poly = self.pf.fit_transform(self.fitted_x.reshape(-1, 1))
 
@@ -131,9 +137,9 @@ class Calibrator:
         self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
     def calibrate(self, dimension: int) -> bool:
-        if not self.find_peaks():
+        if not self._find_peaks():
             return False
-        self.train(dimension)
+        self._train(dimension)
         x = self.xdata.copy()
         x = self.pf.fit_transform(x.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
