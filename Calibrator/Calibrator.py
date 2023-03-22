@@ -6,17 +6,17 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 
 
-def Lorentzian(x: np.ndarray, center: float, intensity: float, w: float) -> np.ndarray:
+def Lorentzian(x: np.ndarray, center: float, intensity: float, w: float, bg: float = 0) -> np.ndarray:
     y = w ** 2 / (4 * (x - center) ** 2 + w ** 2)
     return intensity * y
 
 
-def Gaussian(x: np.ndarray, center: float, intensity: float, sigma: float) -> np.ndarray:
+def Gaussian(x: np.ndarray, center: float, intensity: float, sigma: float, bg: float = 0) -> np.ndarray:
     y = np.exp(-1 / 2 * (x - center) ** 2 / sigma ** 2)
     return intensity * y
 
 
-def Voigt(x: np.ndarray, center: float, intensity: float, lw: float, gw: float) -> np.ndarray:
+def Voigt(x: np.ndarray, center: float, intensity: float, lw: float, gw: float, bg: float = 0) -> np.ndarray:
     # lw : HWFM of Lorentzian
     # gw : sigma of Gaussian
     if gw == 0:
@@ -58,6 +58,7 @@ class Calibrator:
             'Voigt': Voigt
         }
         self.function = Lorentzian
+        self.num_params = 4
 
         self.pf = PolynomialFeatures()
         self.lr = LinearRegression()
@@ -114,7 +115,12 @@ class Calibrator:
                 continue
 
             # Fit with Voigt based on the found peak
-            p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 3, 3, y_partial.min()]
+            if self.num_params == 4:
+                p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 1, y_partial.min()]
+            elif self.num_params == 6:
+                p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 3, 3, y_partial.min()]
+            else:
+                raise ValueError('Invalid num_params.')
 
             popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
 
