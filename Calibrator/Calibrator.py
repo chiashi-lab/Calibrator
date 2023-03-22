@@ -93,6 +93,10 @@ class Calibrator:
     def set_function(self, function: str):
         if function not in self.functions.keys():
             raise ValueError(f'Invalid function. It must be {", or ".join(self.functions.keys())}')
+        if function in ['Lorentzian', 'Gaussian']:
+            self.num_params = 4
+        elif function in ['Voigt']:
+            self.num_params = 6
         self.function = self.functions[function]
 
     def _find_peaks(self, search_range: float = 15) -> bool:
