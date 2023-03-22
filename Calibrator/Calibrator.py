@@ -67,9 +67,9 @@ class Calibrator:
         self.calibration_info = []
 
     def set_data(self, xdata: np.ndarray, ydata: np.ndarray):
-        if len(self.xdata.shape) != 1 or len(self.ydata.shape) != 1:
+        if len(xdata.shape) != 1 or len(ydata.shape) != 1:
             raise ValueError('Invalid shape. x and y array must be 1 dimensional.')
-        if self.xdata.shape != self.ydata.shape:
+        if xdata.shape != ydata.shape:
             raise ValueError('Invalid shape. x and y array must have same shape.')
         self.xdata = xdata
         self.ydata = ydata
@@ -129,20 +129,22 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
-    def _train(self, dimension: int) -> None:
-        self.pf.set_params(degree=dimension)
+    def _train(self) -> None:
+        self.pf.set_params(degree=self.dimension)
         fitted_x_poly = self.pf.fit_transform(self.fitted_x.reshape(-1, 1))
 
         # Train the linear model
         self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
-    def calibrate(self, dimension: int) -> bool:
+    def calibrate(self) -> bool:
+        if self.measurement is None or self.material is None or self.dimension is None or self.xdata is None or self.ydata is None:
+            raise ValueError('Set up is not completed.')
         if not self._find_peaks():
             return False
-        self._train(dimension)
+        self._train()
         x = self.xdata.copy()
         x = self.pf.fit_transform(x.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
 
-        self.calibration_info = [self.material, dimension, self.found_x_true]
+        self.calibration_info = [self.material, self.dimension, self.found_x_true]
         return True
