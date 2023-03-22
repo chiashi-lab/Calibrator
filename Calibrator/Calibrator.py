@@ -1,4 +1,3 @@
-import json
 import numpy as np
 from scipy.special import wofz
 from scipy.signal import find_peaks
@@ -51,6 +50,12 @@ class Calibrator:
                 "link": "https://www.nist.gov/pml/atomic-spectra-database",
                 "ArHg": [435.8335, 546.0750, 576.9610, 579.0670, 696.5431, 706.7218, 714.7042, 727.2936, 738.3980, 750.3869, 751.4652, 763.5106, 772.3761, 794.8176, 800.6157, 801.4786, 810.3693, 811.5311]
             }
+        }
+
+        self.functions = {
+            'Lorentzian': Lorentzian,
+            'Gaussian': Gaussian,
+            'Voigt': Voigt
         }
 
         self.pf = PolynomialFeatures()
@@ -120,10 +125,10 @@ class Calibrator:
 
     def train(self, dimension: int) -> None:
         self.pf.set_params(degree=dimension)
-        fitted_x_ref_poly = self.pf.fit_transform(self.fitted_x.reshape(-1, 1))
+        fitted_x_poly = self.pf.fit_transform(self.fitted_x.reshape(-1, 1))
 
         # Train the linear model
-        self.lr.fit(fitted_x_ref_poly, np.array(self.found_x_true).reshape(-1, 1))
+        self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
     def calibrate(self, dimension: int) -> bool:
         if not self.find_peaks():
