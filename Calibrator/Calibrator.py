@@ -72,8 +72,8 @@ class Calibrator:
             raise ValueError('Invalid shape. x and y array must be 1 dimensional.')
         if xdata.shape != ydata.shape:
             raise ValueError('Invalid shape. x and y array must have same shape.')
-        self.xdata = xdata
-        self.ydata = ydata
+        self.xdata = xdata.copy()
+        self.ydata = ydata.copy()
 
     def set_measurement(self, measurement: str):
         if measurement not in self.database.keys():
