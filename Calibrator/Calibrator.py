@@ -86,7 +86,7 @@ class Calibrator:
         self.material = material
 
     def get_material_list(self):
-        return list(self.database[self.measurement].keys())
+        return list(self.database[self.measurement].keys()[1:])
 
     def set_dimension(self, dimension: int):
         if dimension < 0:
