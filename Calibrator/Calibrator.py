@@ -85,6 +85,9 @@ class Calibrator:
             raise ValueError(f'Invalid material. It must be {", or ".join(self.database[self.measurement].keys())}')
         self.material = material
 
+    def get_material_list(self):
+        return self.database[self.measurement].keys()
+
     def set_dimension(self, dimension: int):
         if dimension < 0:
             raise ValueError('Invalid dimension. It must be greater than zero.')
@@ -97,6 +100,8 @@ class Calibrator:
             self.num_params = 4
         elif function in ['Voigt']:
             self.num_params = 6
+        else:
+            raise ValueError('Unrecognised function.')
         self.function = self.functions[function]
 
     def _find_peaks(self, search_range: float = 15) -> bool:
