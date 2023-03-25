@@ -93,6 +93,12 @@ class Calibrator:
             raise ValueError('Invalid dimension. It must be greater than zero.')
         self.dimension = dimension
 
+    def get_dimension_list(self):
+        return ['1 (Linear)', '2 (Quadratic)', '3 (Cubic)']
+
+    def get_function_list(self):
+        return list(self.functions.keys())
+
     def set_function(self, function: str):
         if function not in self.functions.keys():
             raise ValueError(f'Invalid function. It must be {", or ".join(self.functions.keys())}')
