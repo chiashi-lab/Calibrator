@@ -154,6 +154,31 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
+    def _find_peaks_easy(self) -> bool:
+        x_true = np.array(self.database[self.measurement][self.material])
+        x_true = x_true[(x_true > self.xdata.min()) & (x_true < self.xdata.max())]  # crop
+        search_ranges = [[x-self.search_width, x+self.search_width] for x in x_true]
+
+        fitted_x = []
+        found_x_true = []
+        for x_ref_true, search_range in zip(x_true, search_ranges):
+            # Crop
+            partial = (search_range[0] < self.xdata) & (self.xdata < search_range[1])
+            x_partial = self.xdata[partial]
+            y_partial = self.ydata[partial]
+
+            max_pos = x_partial[y_partial == y_partial.max()]
+            fitted_x.append(max_pos)
+            found_x_true.append(x_ref_true)
+
+        # if no peak found or if only one peak found
+        if len(fitted_x) < 2:  # reshape will be failed if there is only one peak
+            return False
+
+        self.fitted_x = np.array(fitted_x)
+        self.found_x_true = np.array(found_x_true)
+        return True
+
     def _train(self) -> None:
         self.pf.set_params(degree=self.dimension)
         fitted_x_poly = self.pf.fit_transform(self.fitted_x.reshape(-1, 1))
@@ -161,11 +186,17 @@ class Calibrator:
         # Train the linear model
         self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
-    def calibrate(self) -> bool:
+    def calibrate(self, easy=False) -> bool:
         if self.measurement is None or self.material is None or self.dimension is None or self.xdata is None or self.ydata is None:
             raise ValueError('Set up is not completed.')
-        if not self._find_peaks():
+
+        if easy:
+            ok = self._find_peaks_easy()
+        else:
+            ok = self._find_peaks()
+        if not ok:
             return False
+
         self._train()
 
         x = self.pf.fit_transform(self.xdata.reshape(-1, 1))
