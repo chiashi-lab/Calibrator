@@ -167,7 +167,7 @@ class Calibrator:
             x_partial = self.xdata[partial]
             y_partial = self.ydata[partial]
 
-            max_pos = x_partial[y_partial == y_partial.max()]
+            max_pos = x_partial[y_partial == y_partial.max()][0]
             fitted_x.append(max_pos)
             found_x_true.append(x_ref_true)
         print(fitted_x, found_x_true)
