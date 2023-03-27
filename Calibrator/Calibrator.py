@@ -125,8 +125,11 @@ class Calibrator:
 
             # Begin with finding the maximum position
             found_peaks, properties = find_peaks(y_partial, prominence=50)
-            if len(found_peaks) != 1:
-                print('Some peaks were not detected.')
+            if len(found_peaks) == 0:
+                print(f'Peak {x_ref_true} not detected.')
+                continue
+            if len(found_peaks) > 1:
+                print(f'Many peaks around {x_ref_true}.')
                 continue
 
             if self.num_params == 4:
