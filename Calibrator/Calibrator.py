@@ -59,6 +59,7 @@ class Calibrator:
         }
         self.function = Lorentzian
         self.num_params = 4
+        self.search_width = 10
 
         self.pf = PolynomialFeatures()
         self.lr = LinearRegression()
@@ -85,19 +86,10 @@ class Calibrator:
             raise ValueError(f'Invalid material. It must be {", or ".join(self.database[self.measurement].keys())}')
         self.material = material
 
-    def get_material_list(self):
-        return list(self.database[self.measurement].keys())[1:]
-
     def set_dimension(self, dimension: int):
         if dimension < 0:
             raise ValueError('Invalid dimension. It must be greater than zero.')
         self.dimension = dimension
-
-    def get_dimension_list(self):
-        return ['1 (Linear)', '2 (Quadratic)', '3 (Cubic)']
-
-    def get_function_list(self):
-        return list(self.functions.keys())
 
     def set_function(self, function: str):
         if function not in self.functions.keys():
@@ -110,10 +102,22 @@ class Calibrator:
             raise ValueError('Unrecognised function.')
         self.function = self.functions[function]
 
-    def _find_peaks(self, search_range: float = 15) -> bool:
+    def set_search_width(self, search_width: float):
+        self.search_width = search_width
+
+    def get_material_list(self):
+        return list(self.database[self.measurement].keys())[1:]
+
+    def get_dimension_list(self):
+        return ['1 (Linear)', '2 (Quadratic)', '3 (Cubic)']
+
+    def get_function_list(self):
+        return list(self.functions.keys())
+
+    def _find_peaks(self) -> bool:
         x_true = np.array(self.database[self.measurement][self.material])
         x_true = x_true[(x_true > self.xdata.min()) & (x_true < self.xdata.max())]  # crop
-        search_ranges = [[x-search_range, x+search_range] for x in x_true]
+        search_ranges = [[x-self.search_width, x+self.search_width] for x in x_true]
 
         fitted_x = []
         found_x_true = []
