@@ -158,7 +158,7 @@ class Calibrator:
         x_true = np.array(self.database[self.measurement][self.material])
         x_true = x_true[(x_true > self.xdata.min()) & (x_true < self.xdata.max())]  # crop
         search_ranges = [[x-self.search_width, x+self.search_width] for x in x_true]
-
+        print(search_ranges)
         fitted_x = []
         found_x_true = []
         for x_ref_true, search_range in zip(x_true, search_ranges):
