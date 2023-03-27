@@ -170,6 +170,7 @@ class Calibrator:
             max_pos = x_partial[y_partial == y_partial.max()]
             fitted_x.append(max_pos)
             found_x_true.append(x_ref_true)
+        print(fitted_x, found_x_true)
 
         # if no peak found or if only one peak found
         if len(fitted_x) < 2:  # reshape will be failed if there is only one peak
