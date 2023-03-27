@@ -133,8 +133,6 @@ class Calibrator:
                 p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 1, y_partial.min()]
             elif self.num_params == 6:
                 p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 3, 3, y_partial.min()]
-            else:
-                raise ValueError('Invalid num_params.')
 
             popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
 
@@ -162,8 +160,8 @@ class Calibrator:
         if not self._find_peaks():
             return False
         self._train()
-        x = self.xdata.copy()
-        x = self.pf.fit_transform(x.reshape(-1, 1))
+
+        x = self.pf.fit_transform(self.xdata.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
 
         self.calibration_info = [self.material, self.dimension, self.found_x_true]
