@@ -203,5 +203,5 @@ class Calibrator:
         x = self.pf.fit_transform(self.xdata.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
 
-        self.calibration_info = [self.material, self.dimension, self.found_x_true]
+        self.calibration_info = [self.material, self.dimension, self.found_x_true.tolist()]
         return True
