@@ -1,1 +1,1 @@
-from calibrator.Calibrator import Calibrator
+from Calibrator import Calibrator
