@@ -67,7 +67,7 @@ class Calibrator:
 
         self.fitted_x = None
         self.found_x_true = None
-        self.calibration_info = []
+        self.calibration_info = ['', 0, '', []]  # material, dimension, function, peak_positions
 
     def set_data(self, xdata: np.ndarray, ydata: np.ndarray):
         if len(xdata.shape) != 1 or len(ydata.shape) != 1:
@@ -206,5 +206,5 @@ class Calibrator:
         x = self.pf.fit_transform(self.xdata.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
 
-        self.calibration_info = [self.material, self.dimension, self.found_x_true.tolist()]
+        self.calibration_info = [self.material, self.dimension, self.function, self.found_x_true.tolist()]
         return True
