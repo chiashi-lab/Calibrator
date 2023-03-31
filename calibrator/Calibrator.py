@@ -199,7 +199,7 @@ class Calibrator:
             self.calibration_info = [self.material, self.dimension, 'easy', self.found_x_true.tolist()]
         else:
             ok = self._find_peaks()
-            self.calibration_info = [self.material, self.dimension, self.function, self.found_x_true.tolist()]
+            self.calibration_info = [self.material, self.dimension, self.function.__name__, self.found_x_true.tolist()]
         if not ok:
             return False
 
