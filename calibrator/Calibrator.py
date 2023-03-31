@@ -106,6 +106,9 @@ class Calibrator:
     def set_search_width(self, search_width: float):
         self.search_width = search_width
 
+    def get_measurement_list(self):
+        return list(self.database.keys())
+
     def get_material_list(self):
         return list(self.database[self.measurement].keys())[1:]
 
