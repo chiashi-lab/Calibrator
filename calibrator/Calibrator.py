@@ -196,8 +196,10 @@ class Calibrator:
 
         if easy:
             ok = self._find_peaks_easy()
+            self.calibration_info = [self.material, self.dimension, 'easy', self.found_x_true.tolist()]
         else:
             ok = self._find_peaks()
+            self.calibration_info = [self.material, self.dimension, self.function, self.found_x_true.tolist()]
         if not ok:
             return False
 
@@ -206,5 +208,4 @@ class Calibrator:
         x = self.pf.fit_transform(self.xdata.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
 
-        self.calibration_info = [self.material, self.dimension, self.function, self.found_x_true.tolist()]
         return True
