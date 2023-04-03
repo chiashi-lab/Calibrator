@@ -66,7 +66,6 @@ class Calibrator:
         self.lr = LinearRegression()
 
         self.fitted_x: np.ndarray = None
-        self.fitted_x_index: np.ndarray = None
         self.found_x_true: np.ndarray = None
         self.calibration_info = ['', 0, '', []]  # material, dimension, function, peak_positions
 
