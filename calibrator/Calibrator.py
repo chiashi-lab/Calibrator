@@ -196,12 +196,14 @@ class Calibrator:
 
         if easy:
             ok = self._find_peaks_easy()
+            if not ok:
+                return False
             self.calibration_info = [self.material, self.dimension, 'easy', self.found_x_true.tolist()]
         else:
             ok = self._find_peaks()
+            if not ok:
+                return False
             self.calibration_info = [self.material, self.dimension, self.function.__name__, self.found_x_true.tolist()]
-        if not ok:
-            return False
 
         self._train()
 
