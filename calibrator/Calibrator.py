@@ -65,8 +65,9 @@ class Calibrator:
         self.pf = PolynomialFeatures()
         self.lr = LinearRegression()
 
-        self.fitted_x = None
-        self.found_x_true = None
+        self.fitted_x: np.ndarray = None
+        self.fitted_x_index: np.ndarray = None
+        self.found_x_true: np.ndarray = None
         self.calibration_info = ['', 0, '', []]  # material, dimension, function, peak_positions
 
     def set_data(self, xdata: np.ndarray, ydata: np.ndarray):
