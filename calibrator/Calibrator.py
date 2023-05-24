@@ -44,7 +44,8 @@ class Calibrator:
                 "sulfur": [85.1, 153.8, 219.1, 473.2],
                 "naphthalene": [513.8, 763.8, 1021.6, 1147.2, 1382.2, 1464.5, 1576.6, 3056.4],
                 "acetonitrile": [2253.7, 2940.8],
-                "1,4-Bis(2-methylstyryl)benzene": [1177.7, 1290.7, 1316.9, 1334.5, 1555.2, 1593.1, 1627.9]
+                "1,4-Bis(2-methylstyryl)benzene": [1177.7, 1290.7, 1316.9, 1334.5, 1555.2, 1593.1, 1627.9],
+                "cyclohexane": [801.3, 1028.3, 1157.6, 1266.4, 1444.4, 2664.4, 2852.9, 2923.8, 2938.3]
             },
             "Rayleigh": {
                 "link": "https://www.nist.gov/pml/atomic-spectra-database",
