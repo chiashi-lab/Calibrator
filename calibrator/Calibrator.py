@@ -209,3 +209,19 @@ class Calibrator:
         self.xdata = np.ravel(self.lr.predict(x))
 
         return True
+
+    def show_fit_result(self, ax: plt.Axes) -> None:
+        # 標準サンプルのピークのフィッティングの結果を表示
+        # 較正前のピーク位置、較正後のピーク位置を示す
+        ax.plot(self.xdata, self.ydata, color='k')
+        ymin, ymax = ax.get_ylim()
+
+        for i, (fitted_x, true_x) in enumerate(zip(self.fitted_x, self.found_x_true)):
+            if i == 0:
+                ax.vlines(fitted_x, ymin, ymax, color='r', linewidth=1, label='Found peak')
+                ax.vlines(true_x, ymin, ymax, color='b', linewidth=1, label='True value')
+            else:
+                ax.vlines(fitted_x, ymin, ymax, color='r', linewidth=1)
+                ax.vlines(true_x, ymin, ymax, color='b', linewidth=1)
+            ax.text(true_x, ymax, str(round(true_x, 2)))
+        ax.legend()
