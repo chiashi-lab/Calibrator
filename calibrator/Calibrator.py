@@ -213,7 +213,7 @@ class Calibrator:
 
         return True
 
-    def show_fit_result(self, ax: plt.Axes) -> None:
+    def show_fit_result(self, ax) -> None:
         # 標準サンプルのピークのフィッティングの結果を表示
         # 較正前のピーク位置、較正後のピーク位置を示す
         ax.plot(self.xdata, self.ydata, color='k')
