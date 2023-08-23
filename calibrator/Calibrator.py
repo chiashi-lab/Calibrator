@@ -17,7 +17,7 @@ def Gaussian(x: np.ndarray, center: float, intensity: float, sigma: float, bg: f
 
 
 def Voigt(x: np.ndarray, center: float, intensity: float, lw: float, gw: float, bg: float = 0) -> np.ndarray:
-    # lw : HWFM of Lorentzian
+    # lw : FWHM of Lorentzian
     # gw : sigma of Gaussian
     if gw == 0:
         gw = 1e-10
@@ -26,7 +26,6 @@ def Voigt(x: np.ndarray, center: float, intensity: float, lw: float, gw: float, 
     model_y = w.real / (gw * np.sqrt(2.0*np.pi))
     intensity /= model_y.max()
     return intensity * model_y + bg
-
 
 
 class Calibrator:
