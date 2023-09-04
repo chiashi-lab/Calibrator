@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "calibrator"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["PlusF <rkaneda896@g.ecc.u-tokyo.ac.jp>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.6.8"
-numpy = "1.19.3"
-scipy = ">=1.0.1"
-scikit-learn = "0.24.2"
+python = ">=3.10.6"
+numpy = ">=1.25.0"
+scipy = ">=1.11.2"
+scikit-learn = ">=1.3.0"
 
 
 [build-system]
