@@ -1,3 +1,4 @@
+import json
 import numpy as np
 from scipy.special import wofz
 from scipy.signal import find_peaks
@@ -37,21 +38,7 @@ class Calibrator:
         self.xdata: np.ndarray = xdata
         self.ydata: np.ndarray = ydata
 
-        self.database = {
-            "Raman": {
-                "link": "https://www.chem.ualberta.ca/~mccreery/ramanmaterials.html",
-                "sulfur": [85.1, 153.8, 219.1, 473.2],
-                "naphthalene": [513.8, 763.8, 1021.6, 1147.2, 1382.2, 1464.5, 1576.6, 3056.4],
-                "acetonitrile": [2253.7, 2940.8],
-                "1,4-Bis(2-methylstyryl)benzene": [1177.7, 1290.7, 1316.9, 1334.5, 1555.2, 1593.1, 1627.9],
-                "cyclohexane": [801.3, 1028.3, 1157.6, 1266.4, 1444.4, 2664.4, 2852.9, 2923.8, 2938.3]
-            },
-            "Rayleigh": {
-                "link": "https://www.nist.gov/pml/atomic-spectra-database",
-                "ArHg": [435.8335, 546.0750, 579.0670, 696.5431, 706.7218, 714.7042, 727.2936, 738.3980, 750.3869, 763.5106, 772.3761, 794.8176, 811.5311]  # reduce to distinguish
-                # "ArHg": [435.8335, 546.0750, 576.9610, 579.0670, 696.5431, 706.7218, 714.7042, 727.2936, 738.3980, 750.3869, 751.4652, 763.5106, 772.3761, 794.8176, 800.6157, 801.4786, 810.3693, 811.5311]
-            }
-        }
+        self.database = json.load(open('database.json', 'r'))
 
         self.functions = {
             'Lorentzian': Lorentzian,
