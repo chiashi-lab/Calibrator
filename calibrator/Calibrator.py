@@ -209,7 +209,6 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
-
     def _train(self) -> None:
         self.pf.set_params(degree=self.dimension)
         fitted_x_poly = self.pf.fit_transform(self.fitted_x.reshape(-1, 1))
@@ -217,15 +216,22 @@ class Calibrator:
         # Train the linear model
         self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
-    def calibrate(self, easy=False) -> bool:
+    def calibrate(self, mode: str = '', ranges=None) -> bool:
         if self.measurement is None or self.material is None or self.dimension is None or self.xdata is None or self.ydata is None:
             raise ValueError('Set up is not completed.')
+        if mode not in ['', 'easy', 'manual']:
+            raise ValueError('Invalid mode. It must be "", "easy", or "manual".')
 
-        if easy:
+        if mode == 'easy':
             ok = self._find_peaks_easy()
             if not ok:
                 return False
             self.calibration_info = [self.material, self.dimension, 'easy', self.found_x_true.tolist()]
+        elif mode == 'manual':
+            ok = self._find_peaks_manually(ranges)
+            if not ok:
+                return False
+            self.calibration_info = [self.material, self.dimension, self.function.__name__, self.found_x_true.tolist()]
         else:
             ok = self._find_peaks()
             if not ok:
