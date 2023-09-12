@@ -118,8 +118,11 @@ class Calibrator:
     def get_function_list(self):
         return list(self.functions.keys())
 
+    def get_true_x(self):
+        return np.array(self.database[self.measurement][self.material])
+
     def _find_peaks(self) -> bool:
-        x_true = np.array(self.database[self.measurement][self.material])
+        x_true = self.get_true_x()
         x_true = x_true[(x_true > self.xdata.min()) & (x_true < self.xdata.max())]  # crop
         search_ranges = [[x-self.search_width, x+self.search_width] for x in x_true]
 
@@ -159,7 +162,7 @@ class Calibrator:
         return True
 
     def _find_peaks_easy(self) -> bool:
-        x_true = np.array(self.database[self.measurement][self.material])
+        x_true = self.get_true_x()
         x_true = x_true[(x_true > self.xdata.min()) & (x_true < self.xdata.max())]  # crop
         search_ranges = [[x-self.search_width, x+self.search_width] for x in x_true]
 
@@ -183,11 +186,11 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
-    def _find_peaks_manually(self, ranges) -> bool:
+    def _find_peaks_manually(self, ranges, x_true) -> bool:
         # ranges: list of tuple (x0, y0, x1, y1)
         fitted_x = []
         found_x_true = []
-        for x0, y0, x1, y1 in ranges:
+        for (x0, y0, x1, y1), xt in zip(ranges, x_true):
             # Crop
             partial_x = (x0 < self.xdata) & (self.xdata < x1)
             partial_y = (y0 < self.ydata) & (self.ydata < y1)
@@ -198,10 +201,10 @@ class Calibrator:
             # Begin with finding the maximum position
             found_peaks, properties = find_peaks(y_partial, prominence=50)
             if len(found_peaks) == 0:
-                print(f'Peak {x_ref_true} not detected.')
+                print(f'Peak {xt} not detected.')
                 continue
             if len(found_peaks) > 1:
-                print(f'Many peaks around {x_ref_true}.')
+                print(f'Many peaks around {xt}.')
                 continue
 
             if self.num_params == 4:
@@ -212,7 +215,7 @@ class Calibrator:
             popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
 
             fitted_x.append(popt[0])
-            found_x_true.append(x_ref_true)
+            found_x_true.append(xt)
 
         # if no peak found or if only one peak found
         if len(fitted_x) < 2:  # reshape will be failed if there is only one peak
@@ -229,7 +232,7 @@ class Calibrator:
         # Train the linear model
         self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
-    def calibrate(self, mode: str = '', ranges=None) -> bool:
+    def calibrate(self, mode: str = '', ranges=None, x_true: list = None) -> bool:
         if self.measurement is None or self.material is None or self.dimension is None or self.xdata is None or self.ydata is None:
             raise ValueError('Set up is not completed.')
         if mode not in ['', 'easy', 'manual']:
@@ -241,7 +244,7 @@ class Calibrator:
                 return False
             self.calibration_info = [self.material, self.dimension, 'easy', self.found_x_true.tolist()]
         elif mode == 'manual':
-            ok = self._find_peaks_manually(ranges)
+            ok = self._find_peaks_manually(ranges, x_true)
             if not ok:
                 return False
             self.calibration_info = [self.material, self.dimension, self.function.__name__, self.found_x_true.tolist()]
