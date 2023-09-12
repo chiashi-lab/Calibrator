@@ -170,6 +170,46 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
+    def _find_peaks_manually(self, ranges) -> bool:
+        # ranges: list of tuple (x0, y0, x1, y1)
+        fitted_x = []
+        found_x_true = []
+        for x0, y0, x1, y1 in ranges:
+            # Crop
+            partial_x = (x0 < self.xdata) & (self.xdata < x1)
+            partial_y = (y0 < self.ydata) & (self.ydata < y1)
+            partial = partial_x & partial_y
+            x_partial = self.xdata[partial]
+            y_partial = self.ydata[partial]
+
+            # Begin with finding the maximum position
+            found_peaks, properties = find_peaks(y_partial, prominence=50)
+            if len(found_peaks) == 0:
+                print(f'Peak {x_ref_true} not detected.')
+                continue
+            if len(found_peaks) > 1:
+                print(f'Many peaks around {x_ref_true}.')
+                continue
+
+            if self.num_params == 4:
+                p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 1, y_partial.min()]
+            elif self.num_params == 6:
+                p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 3, 3, y_partial.min()]
+
+            popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
+
+            fitted_x.append(popt[0])
+            found_x_true.append(x_ref_true)
+
+        # if no peak found or if only one peak found
+        if len(fitted_x) < 2:  # reshape will be failed if there is only one peak
+            return False
+
+        self.fitted_x = np.array(fitted_x)
+        self.found_x_true = np.array(found_x_true)
+        return True
+
+
     def _train(self) -> None:
         self.pf.set_params(degree=self.dimension)
         fitted_x_poly = self.pf.fit_transform(self.fitted_x.reshape(-1, 1))
