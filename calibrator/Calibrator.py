@@ -38,7 +38,7 @@ class Calibrator:
         self.xdata: np.ndarray = xdata
         self.ydata: np.ndarray = ydata
 
-        self.database = json.load(open('database.json', 'r'))
+        self.database = json.load(open('calibrator/database.json', 'r'))
 
         self.functions = {
             'Lorentzian': Lorentzian,
