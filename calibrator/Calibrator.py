@@ -277,6 +277,6 @@ class Calibrator:
             else:
                 ax.vlines(fitted_x, ymin, ymax, color='r', linewidth=1)
                 ax.vlines(true_x, ymin, ymax, color='b', linewidth=1)
-            ax.text(true_x, ymax*0.9, str(round(true_x, 2)), color='r', fontsize=8)
-            ax.text(true_x, ymax, str(round(true_x, 2)), color='b', fontsize=8)
+            ax.text(true_x, ymax*0.95, str(round(true_x, 2)), color='r', fontsize=15)
+            ax.text(true_x, ymax, str(round(true_x, 2)), color='b', fontsize=15)
         ax.legend()
