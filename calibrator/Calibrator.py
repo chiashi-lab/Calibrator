@@ -266,6 +266,8 @@ class Calibrator:
     def show_fit_result(self, ax) -> None:
         # 標準サンプルのピークのフィッティングの結果を表示
         # 較正前のピーク位置、較正後のピーク位置を示す
+        if self.fitted_x is None or self.found_x_true is None:
+            raise ValueError('Calibration is not performed yet.')
         ax.plot(self.xdata_before, self.ydata, color='k', linewidth=1, linestyle='dashed', label='Before')
         ax.plot(self.xdata, self.ydata, color='k', linewidth=1, label='After')
         ymin, ymax = ax.get_ylim()
