@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "calibrator"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = ["PlusF <rkaneda896@g.ecc.u-tokyo.ac.jp>"]
 readme = "README.md"
