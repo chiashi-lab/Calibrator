@@ -35,6 +35,7 @@ class Calibrator:
         self.material: str = material
         self.dimension: int = dimension
 
+        self.xdata_before: np.ndarray = None
         self.xdata: np.ndarray = xdata
         self.ydata: np.ndarray = ydata
 
@@ -256,6 +257,7 @@ class Calibrator:
 
         self._train()
 
+        self.xdata_before = self.xdata.copy()
         x = self.pf.fit_transform(self.xdata.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
 
@@ -264,7 +266,8 @@ class Calibrator:
     def show_fit_result(self, ax) -> None:
         # 標準サンプルのピークのフィッティングの結果を表示
         # 較正前のピーク位置、較正後のピーク位置を示す
-        ax.plot(self.xdata, self.ydata, color='k')
+        ax.plot(self.xdata_before, self.ydata, color='k', linewidth=1, linestyle='dashed', label='Before')
+        ax.plot(self.xdata, self.ydata, color='k', linewidth=1, label='After')
         ymin, ymax = ax.get_ylim()
 
         for i, (fitted_x, true_x) in enumerate(zip(self.fitted_x, self.found_x_true)):
@@ -274,5 +277,6 @@ class Calibrator:
             else:
                 ax.vlines(fitted_x, ymin, ymax, color='r', linewidth=1)
                 ax.vlines(true_x, ymin, ymax, color='b', linewidth=1)
-            ax.text(true_x, ymax, str(round(true_x, 2)))
+            ax.text(true_x, ymax*0.9, str(round(true_x, 2)), color='r', fontsize=8)
+            ax.text(true_x, ymax, str(round(true_x, 2)), color='b', fontsize=8)
         ax.legend()
