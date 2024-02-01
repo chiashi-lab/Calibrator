@@ -68,6 +68,7 @@ class Calibrator:
 
         self.fitted_x: np.ndarray = None
         self.found_x_true: np.ndarray = None
+        self.is_calibrated: bool = False
         self.calibration_info = ['', 0, '', []]  # material, dimension, function, peak_positions
 
     def set_data(self, xdata: np.ndarray, ydata: np.ndarray):
@@ -260,6 +261,8 @@ class Calibrator:
         self.xdata_before = self.xdata.copy()
         x = self.pf.fit_transform(self.xdata.reshape(-1, 1))
         self.xdata = np.ravel(self.lr.predict(x))
+
+        self.is_calibrated = True
 
         return True
 
