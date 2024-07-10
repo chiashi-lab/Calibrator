@@ -50,7 +50,11 @@ class Calibrator:
             },
             "Rayleigh": {
                 "link": "https://www.nist.gov/pml/atomic-spectra-database",
-                "ArHg": [435.8335, 546.0750, 576.9610, 579.0670, 696.5431, 706.7218, 714.7042, 727.2936, 738.3980, 750.3869, 751.4652, 763.5106, 772.3761, 794.8176, 800.6157, 801.4786, 810.3693, 811.5311]
+                "ArHg": [435.8335, 546.0750, 576.9610, 579.0670, 696.5431, 706.7218, 714.7042, 727.2936, 738.3980, 750.3869, 751.4652, 763.5106, 772.3761, 794.8176, 800.6157, 801.4786, 810.3693, 811.5311, 826.4522, 840.8210, 842.4648, 852.1442, 912.2967, 922.4499, 965.7786, 978.4503, 1013.975, 1047.0054, 1067.3565, 1128.71, 1148.811, 1166.871, 1211.2326, 1270.228, 1280.274, 1295.666, 1300.826]
+            },
+            "PL": {
+                "link": "https://www.nist.gov/pml/atomic-spectra-database",
+                "ArHg": [435.8335, 546.0750, 576.9610, 579.0670, 696.5431, 706.7218, 714.7042, 727.2936, 738.3980, 750.3869, 751.4652, 763.5106, 772.3761, 794.8176, 800.6157, 801.4786, 810.3693, 811.5311, 826.4522, 840.8210, 842.4648, 852.1442, 912.2967, 922.4499, 965.7786, 978.4503, 1013.975, 1047.0054, 1067.3565, 1128.71, 1148.811, 1166.871, 1211.2326, 1270.228, 1280.274, 1295.666, 1300.826]
             }
         }
 
@@ -188,7 +192,7 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
-    def _find_peaks_manually(self, ranges, x_true) -> bool:
+    def _find_peaks_manually(self, ranges, x_true, curvefit=True) -> bool:
         # ranges: list of tuple (x0, y0, x1, y1)
         fitted_x = []
         found_x_true = []
@@ -201,7 +205,7 @@ class Calibrator:
             y_partial = self.ydata[partial]
 
             # Begin with finding the maximum position
-            found_peaks, properties = find_peaks(y_partial, prominence=50)
+            found_peaks, properties = find_peaks(y_partial, prominence=100)
             if len(found_peaks) == 0:
                 print(f'Peak {xt} not detected.')
                 continue
@@ -214,9 +218,14 @@ class Calibrator:
             elif self.num_params == 6:
                 p0 = [x_partial[found_peaks[0]], y_partial[found_peaks[0]], 3, 3, y_partial.min()]
 
-            popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
+            # PLではカーブフィットがうまくいかないので、ピーク位置をそのまま使う
+            # レイリーやラマンでは大丈夫みたいなので、ピーク位置を参考に関数をカーブフィットする
+            if curvefit:
+                popt, pcov = curve_fit(self.function, x_partial, y_partial, p0=p0)
+                fitted_x.append(popt[0])
+            else:
+                fitted_x.append(x_partial[found_peaks[0]])
 
-            fitted_x.append(popt[0])
             found_x_true.append(xt)
 
         # if no peak found or if only one peak found
@@ -234,7 +243,7 @@ class Calibrator:
         # Train the linear model
         self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
-    def calibrate(self, mode: str = '', ranges=None, x_true: list = None) -> bool:
+    def calibrate(self, mode: str = '', ranges=None, x_true: list = None, curvefit: bool = True) -> bool:
         if self.measurement is None or self.material is None or self.dimension is None or self.xdata is None or self.ydata is None:
             raise ValueError('Set up is not completed.')
         if mode not in ['', 'easy', 'manual']:
@@ -246,7 +255,7 @@ class Calibrator:
                 return False
             self.calibration_info = [self.material, self.dimension, 'easy', self.found_x_true.tolist()]
         elif mode == 'manual':
-            ok = self._find_peaks_manually(ranges, x_true)
+            ok = self._find_peaks_manually(ranges, x_true, curvefit)
             if not ok:
                 return False
             self.calibration_info = [self.material, self.dimension, self.function.__name__, self.found_x_true.tolist()]
