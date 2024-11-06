@@ -192,7 +192,7 @@ class Calibrator:
         self.found_x_true = np.array(found_x_true)
         return True
 
-    def _find_peaks_manually(self, ranges, x_true, curvefit=True) -> bool:
+    def _find_peaks_manually(self, ranges, x_true, curvefit = True, prominence: int = 100) -> bool:
         # ranges: list of tuple (x0, y0, x1, y1)
         fitted_x = []
         found_x_true = []
@@ -205,7 +205,7 @@ class Calibrator:
             y_partial = self.ydata[partial]
 
             # Begin with finding the maximum position
-            found_peaks, properties = find_peaks(y_partial, prominence=100)
+            found_peaks, properties = find_peaks(y_partial, prominence=prominence)
             if len(found_peaks) == 0:
                 print(f'Peak {xt} not detected.')
                 continue
@@ -243,7 +243,7 @@ class Calibrator:
         # Train the linear model
         self.lr.fit(fitted_x_poly, np.array(self.found_x_true).reshape(-1, 1))
 
-    def calibrate(self, mode: str = '', ranges=None, x_true: list = None, curvefit: bool = True) -> bool:
+    def calibrate(self, mode: str = '', ranges=None, x_true: list = None, curvefit: bool = True, prominence: int = 100) -> bool:
         if self.measurement is None or self.material is None or self.dimension is None or self.xdata is None or self.ydata is None:
             raise ValueError('Set up is not completed.')
         if mode not in ['', 'easy', 'manual']:
@@ -255,7 +255,7 @@ class Calibrator:
                 return False
             self.calibration_info = [self.material, self.dimension, 'easy', self.found_x_true.tolist()]
         elif mode == 'manual':
-            ok = self._find_peaks_manually(ranges, x_true, curvefit)
+            ok = self._find_peaks_manually(ranges, x_true, curvefit, prominence)
             if not ok:
                 return False
             self.calibration_info = [self.material, self.dimension, self.function.__name__, self.found_x_true.tolist()]
